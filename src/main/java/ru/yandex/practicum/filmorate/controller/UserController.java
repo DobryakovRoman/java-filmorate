@@ -16,8 +16,8 @@ import java.util.Map;
 @Slf4j
 public class UserController {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id;
+    private final Map<Long, User> users = new HashMap<>();
+    private long id;
 
     @GetMapping("/users")
     public List<User> getUsers() {
@@ -27,12 +27,11 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) {
-        log.debug("Валидация пользователя.");
-        validateUser(user);
+        validate(user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        log.debug("Добавление пользователя в Map.");
+        log.debug(String.format("Добавление пользователя в хранилище. id: %d, login: %s", user.getId(), user.getLogin()));
         user.setId(++id);
         users.put(user.getId(), user);
         return user;
@@ -41,21 +40,19 @@ public class UserController {
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) throws NotFoundException {
         log.debug("Обновление пользователя.");
-        if (users.containsKey(user.getId())) {
-            log.debug("Валидация пользователя.");
-            validateUser(user);
-            if (user.getName() == null || user.getName().isBlank()) {
-                user.setName(user.getLogin());
-            }
-            users.replace(user.getId(), user);
-        } else {
-            log.warn("Обновляется пользователь, которого нет в базе.");
+        if (!users.containsKey(user.getId())) {
+            log.warn("Такого фильма нет в хранилище. Обновление не выполнено.");
             throw new NotFoundException("Пользователь с таким id не найден.");
         }
+        validate(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        users.replace(user.getId(), user);
         return users.get(user.getId());
     }
 
-    private void validateUser(User user) {
+    private void validate(User user) {
         if (user.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
                 && !user.getEmail().isEmpty()
                 && !user.getLogin().isEmpty()
