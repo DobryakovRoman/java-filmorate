@@ -37,7 +37,7 @@ public class FilmController {
     @PutMapping("/films")
     public Film updateFilm(@RequestBody Film film) throws NotFoundException {
         log.debug("Обновление фильма.");
-        if (films.containsKey(film.getId())) {
+        if (!films.containsKey(film.getId())) {
             log.warn("Такого фильма нет в хранилище. Обновление не выполнено.");
             throw new NotFoundException("Фильм с таким id не найден.");
         }
