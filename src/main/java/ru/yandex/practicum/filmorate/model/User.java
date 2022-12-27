@@ -5,11 +5,11 @@ import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @Builder
-@Component
 public class User {
     private long id;
     private String email;
@@ -19,7 +19,12 @@ public class User {
     private Set<Long> friends;
 
     public void addFriend(long friend) {
-        friends.add(friend);
+        if (friends != null) {
+            friends.add(friend);
+        } else {
+            friends = new HashSet<>();
+            friends.add(friend);
+        }
     }
 
     public void removeFriend(long friend) {

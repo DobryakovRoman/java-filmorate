@@ -7,9 +7,11 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -58,6 +60,9 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User getUser(Long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("Пользователь с таким id не найден");
+        }
         return users.get(id);
     }
 
@@ -77,6 +82,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public List<Long> getFriendsOfUser(long id) {
-        return (List<Long>) users.get(id).getFriends();
+        return users.get(id).getFriends().stream().collect(Collectors.toList());
+    }
+
+    public List<User> getUsers() {
+        return new ArrayList<>(users.values());
     }
 }

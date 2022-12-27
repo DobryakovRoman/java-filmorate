@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         validate(film);
         film.setId(++id);
         log.debug(String.format("Добавление фильма в хранилище. id: %d, название: %s", film.getId(), film.getName()));
+        film.setLikes(new HashSet<>());
         films.put(film.getId(), film);
         return film;
     }
@@ -30,13 +32,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) throws NotFoundException {
         log.debug("Обновление фильма.");
-        if (!films.containsKey(id)) {
+        if (!films.containsKey(film.getId())) {
             log.warn("Такого фильма нет в хранилище. Обновление не выполнено.");
             throw new NotFoundException("Фильм с таким id не найден.");
         }
         validate(film);
-        films.replace(id, film);
-        return films.get(id);
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
+        }
+        films.replace(film.getId(), film);
+        return films.get(film.getId());
     }
 
     @Override
@@ -48,11 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film getFilm(long filmId) {
-        if (films.containsKey(filmId)) {
-            return films.get(filmId);
-        } else {
-            return null;
+        if (!films.containsKey(filmId)) {
+            throw new NotFoundException("Такого фильма не существует.");
         }
+        return films.get(filmId);
     }
 
     public List<Film> getFilms() {
