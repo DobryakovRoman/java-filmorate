@@ -7,16 +7,13 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private HashMap<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> films = new HashMap<>();
     private long id;
 
     @Override
@@ -30,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film update(Film film) throws NotFoundException {
+    public Film update(Film film) {
         log.debug("Обновление фильма.");
         if (!films.containsKey(film.getId())) {
             log.warn("Такого фильма нет в хранилище. Обновление не выполнено.");
@@ -49,9 +46,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(film.getId())) {
             return;
         }
-        films.remove(film);
+        films.remove(film.getId());
     }
 
+    @Override
     public Film getFilm(long filmId) {
         if (!films.containsKey(filmId)) {
             throw new NotFoundException("Такого фильма не существует.");
@@ -59,20 +57,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(filmId);
     }
 
+    @Override
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
     }
 
     private void validate(Film film) {
-        if (!film.getName().isBlank()
-                && film.getDescription().length() <= 200
-                && film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28))
-                && film.getDuration() > 0) {
+        if (!film.getName().isBlank() && film.getDescription().length() <= 200 && film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28)) && film.getDuration() > 0) {
         } else {
             log.warn("Фильм не валидный.");
             throw new ValidationException("Фильм не соответствует критериям.");
         }
     }
-
-
 }
