@@ -23,13 +23,13 @@ public class FilmController {
     }
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody Film film) throws NotFoundException {
+    public Film addFilm(@RequestBody Film film) {
         filmService.add(film);
         return filmService.getFilm(film.getId());
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@RequestBody Film film) throws NotFoundException {
+    public Film updateFilm(@RequestBody Film film) {
         return filmService.update(film);
     }
 
@@ -39,7 +39,7 @@ public class FilmController {
     }
 
     @GetMapping("/films/{id}")
-    public Film getFilm(@PathVariable long id) throws NotFoundException {
+    public Film getFilm(@PathVariable long id) {
         return filmService.getFilm(id);
     }
 

@@ -42,18 +42,18 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public User updateUser(@RequestBody User user) throws NotFoundException {
+    public User updateUser(@RequestBody User user){
         return userService.update(user);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable long id, @PathVariable long friendId) throws NotFoundException {
+    public User addFriend(@PathVariable long id, @PathVariable long friendId){
         userService.addFriend(id, friendId);
         return userService.getUserById(id);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable long id, @PathVariable long friendId) throws NotFoundException {
+    public void removeFriend(@PathVariable long id, @PathVariable long friendId){
         userService.removeFriend(id, friendId);
     }
 

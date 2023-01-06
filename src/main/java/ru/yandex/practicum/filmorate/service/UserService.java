@@ -29,7 +29,7 @@ public class UserService {
         return inMemoryUser;
     }
 
-    public void removeFriend(long user, long friend) throws NotFoundException {
+    public void removeFriend(long user, long friend) {
         User inMemoryUser = storage.getUser(user);
         if (inMemoryUser.getFriends().contains(friend)) {
             inMemoryUser.removeFriend(friend);
