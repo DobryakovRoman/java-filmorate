@@ -7,47 +7,54 @@ Template repository for Filmorate project.
 <br>
 Таблица User - хранит данные о пользователях
 <br>
-Таблица FriendStatus - хранит статусы дружеских связей, всего 2 строки
+Таблица Friends - хранит статусы дружеских связей, всего 2 строки
 <br>
-Таблица Friendlist - хранит списки друзей, и статусы этих дружеских связей (подтверждена или нет)
+Таблица Films - хранит данные о фильмах
 <br>
-Таблица Film - хранит данные о фильмах
+Таблица Ratings - хранит данные о рейтинге Ассоциации кинокомпаний 
 <br>
-Таблица MPA - хранит данные о рейтинге Ассоциации кинокомпаний 
+Таблица Genres - хранит данные о жанрах
 <br>
-Таблица genre - хранит данные о жанрах
+Таблица Film_Genres - хранит данные о жанрах, которые относятся к фильмам. У одного фильма может быть много жанров
 <br>
-Таблица genres - хранит данные о жанрах, которые относятся к фильмам. У одного фильма может быть много жанров
-<br>
-Таблица Likes - хранит данные о лайках, которые поставили пользователи
+Таблица Film_Likes - хранит данные о лайках, которые поставили пользователи
 <br>
 <br>
 1. Чтобы получить список друзей пользователя с id 1 необходимо выполнить следующий запрос:
 <br>
-SELECT u.login,
+SELECT USERS.* 
 <br>
-  fs.name
-  <br>
-FROM Friendlist AS fl
+FROM friends
 <br>
-LEFT JOIN FriendStatus AS fs ON fl.id_status=fs.id
+INNER JOIN USERS ON FRIENDS.FRIEND_ID = USERS.USER_ID
 <br>
-LEFT JOIN User AS u ON fl.id_friend=u.id
-<br>
-WHERE fs.id=1;
-<br>
+WHERE FRIENDS.USER_ID=1;
 <br>
 <br>
 
-2. Чтобы получить общий друзей пользователей с id 1 и 2 необходимо выполнить следующий запрос:
+2. Чтобы получить общий друзей пользователей необходимо выполнить следующий запрос:
 <br>
-SELECT login<br>
-FROM User<br>
-WHERE id IN (SELECT id_friend<br>
-FROM Friendlist<br>
-WHERE id=1<br>
-AND id_friend IN (SELECT id_friend<br>
-FROM Friendlist<br>
-WHERE id=2)<br>
-)<br>
+SELECT *
+<br>
+FROM USERS
+<br>
+WHERE user_id IN (
+<br>
+(SELECT f1.friend_id
+<br>
+FROM (SELECT user_id, friend_id
+<br>
+FROM friends
+<br>
+WHERE user_id = ?) AS f1
+<br>
+INNER JOIN <br>
+(SELECT user_id, friend_id
+<br>
+FROM friends
+<br>
+WHERE user_id = ?) as f3
+<br>
+ON f1.friend_id = f3.friend_id))
+<br>
 <br>
