@@ -2,64 +2,41 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserStorage storage;
-
+    private final FriendStorage friendStorage;
 
     public User add(User user) {
         return storage.add(user);
     }
 
-    public User addFriend(long id, long friend) {
-        User inMemoryUser = storage.getUser(id);
-        User inMemoryUserFriend = storage.getUser(friend);
-        inMemoryUser.addFriend(friend);
-        inMemoryUserFriend.addFriend(id);
-        return inMemoryUser;
+    public void addFriend(long id, long friend) {
+        friendStorage.addFriend(id, friend);
     }
 
     public void removeFriend(long user, long friend) {
-        User inMemoryUser = storage.getUser(user);
-        if (inMemoryUser.getFriends().contains(friend)) {
-            inMemoryUser.removeFriend(friend);
-        }
+        friendStorage.removeFriend(user, friend);
     }
 
     public List<User> getCommonFriends(long id, long otherId) {
-        if (!storage.contains(id) && !storage.contains(otherId)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        return storage.getFriendsOfUser(id).stream()
-                .filter(x -> storage.getFriendsOfUser(otherId).contains(x))
-                .map(x -> getUserById(x))
-                .collect(Collectors.toList());
+        return friendStorage.getCommonsFriends(id, otherId);
     }
 
-    public User getUserById(long id) {
-        if (!storage.contains(id)) {
-            throw new NotFoundException("Пользователь не найден.");
-        }
+    public User getUser(long id) {
         return storage.getUser(id);
-
     }
 
     public List<User> getFriendsOfUser(long id) {
-        return convertIdsToUsers(storage.getFriendsOfUser(id));
-    }
-
-    private List<User> convertIdsToUsers(List<Long> ids) {
-        return ids.stream().map(x -> storage.getUser(x)).collect(Collectors.toList());
+        return friendStorage.getFriends(id);
     }
 
     public User update(User user) {
