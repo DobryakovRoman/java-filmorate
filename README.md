@@ -46,14 +46,14 @@ FROM (SELECT user_id, friend_id
 <br>
 FROM friends
 <br>
-WHERE user_id = ?) AS f1
+WHERE user_id = 1) AS f1
 <br>
 INNER JOIN <br>
 (SELECT user_id, friend_id
 <br>
 FROM friends
 <br>
-WHERE user_id = ?) as f3
+WHERE user_id = 2) as f3
 <br>
 ON f1.friend_id = f3.friend_id))
 <br>
