@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -9,22 +10,16 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.util.*;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class DbFilmStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final MPAStorage mpaStorage;
-    private final GenreStorage genreStorage;
-
-    public DbFilmStorage(JdbcTemplate jdbcTemplate, MPAStorage mpaStorage, GenreStorage genreStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.mpaStorage = mpaStorage;
-        this.genreStorage = genreStorage;
-    }
 
     @Override
     public Film add(Film film) {
@@ -32,9 +27,8 @@ public class DbFilmStorage implements FilmStorage {
                 .withTableName("FILMS")
                 .usingGeneratedKeyColumns("FILM_ID");
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue());
-        genreStorage.addFilmGenre(film);
         log.info("Фильм добавлен");
-        return getFilm(film.getId());
+        return film;
     }
 
     @Override
@@ -50,7 +44,7 @@ public class DbFilmStorage implements FilmStorage {
                     film.getDuration(),
                     film.getMpa().getId(),
                     film.getId());
-            mpaStorage.getMPA(film.getMpa().getId());
+            getMPAForFilm(film.getMpa().getId());
             removeFilmGenres(film.getId());
             addFilmGenres(film);
             film.setGenres(getFilmGenres(film.getId()));
@@ -115,10 +109,21 @@ public class DbFilmStorage implements FilmStorage {
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
-                mpaStorage.getMPA(rs.getInt("MPA_ID")),
+                getMPAForFilm(rs.getInt("MPA_ID")),
                 getLikesAmount(rs.getInt("FILM_ID")));
         film.setGenres(getFilmGenres(film.getId()));
         return film;
+    }
+
+    private MPA getMPAForFilm(int id) {
+        String sqlQuery = "SELECT * FROM RATINGS WHERE MPA_ID = ?";
+        SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (mpaRow.next()) {
+            return new MPA(mpaRow.getInt("mpa_id"),
+                    mpaRow.getString("name"));
+        } else {
+            throw new NotFoundException("MPA с id " + id + " не найден.");
+        }
     }
 
     private int getLikesAmount(int id) {

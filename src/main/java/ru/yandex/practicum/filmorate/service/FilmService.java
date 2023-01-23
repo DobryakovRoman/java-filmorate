@@ -3,8 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +14,13 @@ public class FilmService {
 
     private final FilmStorage storage;
     private final LikeStorage likeStorage;
+    private final UserStorage userStorage;
+    private final GenreStorage genreStorage;
 
     public Film add(Film film) {
-        return storage.add(film);
+        storage.add(film);
+        genreStorage.addFilmGenre(film);
+        return storage.getFilm(film.getId());
     }
 
     public Film update(Film film) {
@@ -25,10 +28,14 @@ public class FilmService {
     }
 
     public void setLike(int filmId, long userId) {
+        storage.getFilm(filmId);
+        userStorage.getUser(userId);
         likeStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, long userId) {
+        storage.getFilm(filmId);
+        userStorage.getUser(userId);
         likeStorage.removeLike(filmId, userId);
     }
 

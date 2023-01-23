@@ -11,7 +11,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ReleaseDateValidator.class)
 public @interface ReleaseDateValidation {
+
     String message() default "Ошибка валидации даты";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

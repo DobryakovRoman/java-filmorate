@@ -8,6 +8,8 @@ import java.util.List;
 public interface GenreStorage {
 
     Genre getGenre(int id);
+
     List<Genre> getAllGenres();
+
     void addFilmGenre(Film film);
 }
