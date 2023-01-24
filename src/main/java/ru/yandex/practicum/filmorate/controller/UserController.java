@@ -2,24 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
 public class UserController {
 
     private final UserService userService;
-
 
     @Autowired
     public UserController(UserService userService) {
@@ -28,10 +22,11 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     public User getUser(@PathVariable long id) {
-        return userService.getUserById(id);
+        return userService.getUser(id);
     }
 
     @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
         return userService.add(user);
     }
@@ -47,9 +42,8 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable long id, @PathVariable long friendId){
+    public void addFriend(@PathVariable long id, @PathVariable long friendId){
         userService.addFriend(id, friendId);
-        return userService.getUserById(id);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
